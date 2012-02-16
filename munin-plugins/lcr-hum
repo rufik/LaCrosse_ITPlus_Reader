@@ -1,0 +1,37 @@
+#!/bin/sh
+. $MUNIN_LIBDIR/plugins/plugin.sh
+
+if [ "$1" = "autoconf" ]; then
+	echo yes
+	exit 0
+fi
+
+# If run with the "config"-parameter, give out information on how the
+# graphs should look. 
+ 
+if [ "$1" = "config" ]; then
+	echo 'graph_title LaCrosse humidity sensor reading'
+	echo 'graph_args --base 1000'
+	echo 'graph_vlabel temperature'
+	echo 'graph_scale no'
+	echo 'graph_category sensors'
+	echo 'hum.label humidity'
+	echo 'graph_info LaCrosse wireless sensor readings'
+	echo 'hum.info 5 minute humidity'
+	echo 'hum.colour 00DD00'
+	#echo "hum.draw LINE1"
+	exit 0
+fi
+
+# If not run with any parameters at all (or only unknown ones), do the
+# real work - i.e. display the data. Almost always this will be
+# "value" subfield for every data field.
+
+echo -n "hum.value "
+sensor_id=`/opt/lcr/lcr-client localhost 2200 | awk -F: '{print $4}'`
+if [ "$sensor_id" = "E8" ] 
+then
+    /opt/lcr/lcr-client localhost 2200 | awk -F: '{print $6}'
+else
+    echo ""
+fi
