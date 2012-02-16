@@ -1,6 +1,4 @@
-All software stuff needed to catch data from LaCrosse wireless sensors (weather station).
-Works well with IT+ technology sensors, like TX29-IT and TX29DTH-IT (868MHz bans and FSK coded).
-It can be easily adopted to other sensors I think :)
+All software stuff needed to catch data from LaCrosse wireless sensors (weather station). Works well with IT+ technology sensors, like TX29-IT and TX29DTH-IT (868MHz bans and FSK coded). It can be easily adopted to other sensors I think :)
 
 You will find JeeLink/JeeNode USB codes and some Linux apps to read it and serve into ex. munin. Enjoy.
 
