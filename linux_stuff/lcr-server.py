@@ -32,15 +32,18 @@ class spReader(Thread):
 	
 	def run(self):
 		while self.stopFlag == False:
-			# configure the serial connections
-			sr = serial.Serial(port = self.serialPort, baudrate = 57600,
-				parity = serial.PARITY_NONE, stopbits = serial.STOPBITS_ONE, bytesize = serial.EIGHTBITS,
-				xonxoff = False, rtscts = False, dsrdtr = False, timeout = 2)
-
-			if self.debug:
-				print "Trying to open serial port " + self.serialPort + ", settings: " + str(sr)
-
-			sr.open()
+			try:
+				# configure the serial connections
+				sr = serial.Serial(port = self.serialPort, baudrate = 57600,
+					parity = serial.PARITY_NONE, stopbits = serial.STOPBITS_ONE, bytesize = serial.EIGHTBITS,
+					xonxoff = False, rtscts = False, dsrdtr = False, timeout = 2)
+				if self.debug:
+					print "Trying to open serial port " + self.serialPort + ", settings: " + str(sr)
+				sr.open()
+			except:
+				print "Fatal error opening serial port, aborting..."
+				sys.exit(3)
+				
 			time.sleep(2)
 
 			if self.debug:
@@ -56,7 +59,7 @@ class spReader(Thread):
 					self.data = (currentTime + msg)
 				else:
 					if self.debug:
-						print "Nothing read from serial port."
+						print "Nothing read from serial port"
 
 			#close serial port
 			sr.close()
@@ -86,6 +89,10 @@ serversocket = None;
 clientsocket = None;
 #start TCP listener
 try:
+	# check for serial port thread erros first
+	if not th.isAlive():
+		sstopFlag = True;
+	
 	if debug:
 		print "Creating server socket."
 	# create an INET, STREAMing socket and bind
@@ -96,7 +103,10 @@ try:
 	serversocket.bind(('0.0.0.0', 2200))
 	# become a server socket
 	serversocket.listen(5)
+	
 	while sstopFlag == False:
+		if not th.isAlive():
+			sstopFlag = True;
 		try:
 			# try to get connected until sstopFlag (CTRL+C)
 			if debug:
@@ -108,9 +118,10 @@ try:
 			clientsocket.close()
 			if debug:
 				print "Sent successfuly."
-		except socket.timeout, msg:
+		except socket.timeout:
 			if debug:
 				print "Socket accept timeout."
+		
 	serversocket.close()
 	print "Shutting down socket server."
 except KeyboardInterrupt:

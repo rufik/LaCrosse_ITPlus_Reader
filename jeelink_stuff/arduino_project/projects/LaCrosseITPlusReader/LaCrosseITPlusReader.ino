@@ -51,14 +51,6 @@ void loop ()
       float temp = calculate_temp(frame[1], frame[2]);
       unsigned int hum = frame[3];
       //print into serial port
-      /*
-      Serial.print("D:");
-      Serial.print(get_sensor_id(frame[0], frame[1]), HEX);
-      Serial.print(":");
-      Serial.print(temp);
-      Serial.print(":");
-      Serial.println(hum);
-      */
       String out = prepare_output_string(get_sensor_id(frame[0], frame[1]), temp, hum);
       Serial.println(out);
       Serial.flush();
@@ -76,9 +68,11 @@ void receive(unsigned int *data)
   
   if (DEBUG) { Serial.println("Start receiving"); }
 
-  activityLed(1);      //LED on
   rf12_rxdata(msg, 5);
-  activityLed(0);      //LED off when receiving done
+  //just blink once
+  activityLed(1);
+  delay(70);
+  activityLed(0);
 
   if (DEBUG) {
     Serial.print("End receiving, HEX raw data: ");
@@ -183,6 +177,7 @@ void setup () {
   if (DEBUG) {
     Serial.println("Radio setup complete. Starting to receive messages");
   }
+  ledBlink(5);
 }
 
 
