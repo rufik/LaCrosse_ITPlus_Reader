@@ -23,7 +23,7 @@ class spReader(Thread):
 		Thread.__init__(self)
 		self.debug = debug
 		self.serialPort = serialPort
-		self.data = ""
+		self.data = {}
 		self.stopFlag = False;
       
 	def notifyStop(self):
@@ -56,7 +56,9 @@ class spReader(Thread):
 					if self.debug:
 						print currentTime + msg
 					#save into shared variable
-					self.data = (currentTime + msg)
+					key = msg[2:4]
+					if key is not '\x00\x00':
+						self.data[key] = (currentTime + msg)
 				else:
 					if self.debug:
 						print "Nothing read from serial port"
@@ -113,8 +115,9 @@ try:
 				print "Listening for incoming connection."
 			(clientsocket, address) = serversocket.accept()
 			if debug:
-				print "Connected, sending current data: " + th.data
-			clientsocket.send(th.data)
+				print "Connected, sending current data: " + str(th.data)
+			for val in th.data.values():
+			    clientsocket.send(val)
 			clientsocket.close()
 			if debug:
 				print "Sent successfuly."

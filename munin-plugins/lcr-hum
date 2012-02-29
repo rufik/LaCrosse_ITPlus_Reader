@@ -10,13 +10,13 @@ fi
 # graphs should look. 
  
 if [ "$1" = "config" ]; then
-	echo 'graph_title LaCrosse humidity sensor reading'
-	echo 'graph_args --base 1000'
-	echo 'graph_vlabel temperature'
+	echo 'graph_title LaCrosse humidity sensor'
+	echo 'graph_args -l 0 -u 102 --base 1000'
+	echo 'graph_vlabel humidity %'
 	echo 'graph_scale no'
 	echo 'graph_category sensors'
 	echo 'hum.label humidity'
-	echo 'graph_info LaCrosse wireless sensor readings'
+	echo 'graph_info LaCrosse wireless sensor humidity readings'
 	echo 'hum.info 5 minute humidity'
 	echo 'hum.colour 00DD00'
 	#echo "hum.draw LINE1"
@@ -27,11 +27,23 @@ fi
 # real work - i.e. display the data. Almost always this will be
 # "value" subfield for every data field.
 
-echo -n "hum.value "
-sensor_id=`/opt/lcr/lcr-client localhost 2200 | awk -F: '{print $4}'`
-if [ "$sensor_id" = "E8" ] 
+#echo -n "hum.value "
+#sensor_id=`/opt/lcr/lcr-client localhost 2200 | awk -F: '{print $4}'`
+#if [ "$sensor_id" = "E8" ] 
+#then
+#    /opt/lcr/lcr-client localhost 2200 | awk -F: '{print $6}'
+#else
+#    echo ""
+#fi
+
+sens1=`/opt/lcr/lcr-client localhost 2200 | grep "D:E8"`
+
+sens1_id=`echo $sens1 | awk -F: '{print $4}'`
+
+if [ "$sens1_id" = "E8" ]
 then
-    /opt/lcr/lcr-client localhost 2200 | awk -F: '{print $6}'
+    echo -n "hum.value "
+    echo "$sens1" | awk -F: '{print $6}'
 else
     echo ""
 fi

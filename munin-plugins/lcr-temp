@@ -12,7 +12,7 @@ fi
  
 if [ "$1" = "config" ]; then
 
-	echo 'graph_title LaCrosse sensor reading'
+	echo 'graph_title LaCrosse temperature sensor'
 	echo 'graph_args --base 1000'
 	echo 'graph_vlabel temperature'
 	# We want Cur/Min/Avg/Max unscaled (i.e. 0.42 load instead of 420 milliload)
@@ -20,16 +20,22 @@ if [ "$1" = "config" ]; then
 	# Graph category. Defaults to 'other'
 	echo 'graph_category sensors'
 	# The fields. "label" is used in the legend. "label" is the only required subfield. 
-	echo 'temp.label temperature'
+	echo 'temp.label temperature outside'
+	echo 'temp2.label temperature inside'
+	echo 'tempz.label zero degree'
 	# These two read the environment for warning values for the field
 	# "load".  If "load_warning" or "warning" aren't set in the
 	# environment, no warning levels are set.  Likewise for "load_critical"
 	# and "critical".
 	print_warning temp
 	print_critical temp
-	echo 'graph_info LaCrosse wireless sensor readings'
-	echo 'temp.info 5 minute temeperature'
-	echo "temp.colour 00DD00"
+	echo 'graph_info LaCrosse wireless sensor temperature readings'
+	echo 'temp.info 5 min temp. outside'
+	echo 'temp2.info 5 min temp. inside'
+	echo 'tempz.info zero degree line'
+	echo 'temp.colour 00DD00'
+	echo 'temp2.colour 4D79FF'
+	echo 'tempz.colour 000000'
 	exit 0
 fi
 
@@ -37,12 +43,28 @@ fi
 # real work - i.e. display the data. Almost always this will be
 # "value" subfield for every data field.
 
-echo -n "temp.value "
-sensor_id=`/opt/lcr/lcr-client localhost 2200 | awk -F: '{print $4}'`
+#zero degree line is fixed
+echo "tempz.value 0.0"
 
-if [ "$sensor_id" = "E8" ] 
+sens1=`/opt/lcr/lcr-client localhost 2200 | grep "D:E8"`
+sens2=`/opt/lcr/lcr-client localhost 2200 | grep "D:68"`
+
+sens1_id=`echo $sens1 | awk -F: '{print $4}'`
+sens2_id=`echo $sens2 | awk -F: '{print $4}'`
+
+if [ "$sens1_id" = "E8" ] 
 then
-    /opt/lcr/lcr-client localhost 2200 | awk -F: '{print $5}'
+    echo -n "temp.value "
+    echo "$sens1" | awk -F: '{print $5}'
 else
     echo ""
 fi
+
+if [ "$sens2_id" = "68" ] 
+then
+    echo -n "temp2.value "
+    echo "$sens2" | awk -F: '{print $5}'
+else
+    echo ""
+fi
+
