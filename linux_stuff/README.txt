@@ -16,6 +16,9 @@ It should start listening on port 2200 (bound to all network interfaces) and sta
 If you need to stop application, just press CTRL+C or send SIGINT signal using kill:
     $ kill -SIGING <pid>
 
+If you need to dump sensors state, just send SIGUSR1 signal and see dump.log file:
+    $ kill -SIGUSR1 <pid>
+
 
 Getting data from my application
 There is simple client app written in C (for simplicity), which you can use to grab data from my "server" application. Just run it loke this:
