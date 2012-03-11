@@ -3,11 +3,25 @@ import time
 import sys
 import socket
 from threading import Thread
+import signal
+import os
 
 #default settings
 portNo = 2200
 debug = False
 sstopFlag = False
+
+#signal  handler for dumping internal state
+def sig_handler(signum, frame):
+	if debug:
+		print 'Signal handler called with signal ', signum
+	f = open('dump.log', 'w+')
+	f.write( "--- DUMPING STATE ---\n")
+	for key, val in th.data.iteritems():
+		f.write("["+key+"] " + val)
+	f.write("---------------------\n")
+	f.close()
+
 
 # prints usage
 def show_usage(argv):
@@ -69,7 +83,7 @@ class spReader(Thread):
 
 
 
-#-----------------------------------------------------------------------
+#----- MAIN --------------
 #read input arguments
 if len(sys.argv) < 2:
 	show_usage(sys.argv)
@@ -82,6 +96,9 @@ if len(sys.argv) >= 3:
 	if arg == "debug":
 		debug = True;
 
+signal.signal(signal.SIGUSR1, sig_handler)
+if debug:
+	print "Handler registred for SIGUSR1"
 
 #start serial port thread
 th = spReader('/dev/ttyUSB0', debug)
@@ -117,13 +134,16 @@ try:
 			if debug:
 				print "Connected, sending current data: " + str(th.data)
 			for val in th.data.values():
-			    clientsocket.send(val)
+				clientsocket.send(val)
 			clientsocket.close()
 			if debug:
 				print "Sent successfuly."
 		except socket.timeout:
 			if debug:
 				print "Socket accept timeout."
+		except IOError as ioe:
+			if debug:
+				print "IOError catched and ignored: ", type(ioe), ioe
 		
 	serversocket.close()
 	print "Shutting down socket server."
