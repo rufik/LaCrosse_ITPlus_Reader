@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in serv_addr;
     struct hostent *server;
 
-    char buffer[256];
+    char buffer[1024];
     if (argc < 3) {
        fprintf(stderr,"usage %s hostname port\n", argv[0]);
        exit(0);
@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
         error("ERROR while connecting! ", strerror(errno));
     }
 
-    bzero(buffer,256);
-    n = read(sockfd,buffer,255);
+    bzero(buffer,1024);
+    n = read(sockfd,buffer,1024);
     if (n < 0) {
          error("ERROR reading from socket!", strerror(errno));
     }
